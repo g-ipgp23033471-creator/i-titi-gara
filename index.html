@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>SEJADIN</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        /* ========== 原有全部样式（100% 保留）========== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        .modal-rectangle {
+            background-color: #ffffff;
+            padding: 40px 50px;
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            max-width: 95vw;
+        }
+        .modal-squares {
+            display: flex;
+            flex-direction: row;
+            gap: 50px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .square {
+            width: 260px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background-color: #f5f0e7;
+            border: 4px solid #9e7e5e;
+            border-radius: 24px;
+            text-decoration: none;
+            color: #4a3729;
+            font-weight: bold;
+            font-size: 1.4rem;
+            padding: 10px;
+            box-sizing: border-box;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            gap: 10px;
+        }
+        .square:hover {
+            background-color: #e6d7c4;
+            transform: scale(1.02);
+            border-color: #7c5e42;
+        }
+        .square:active {
+            transform: scale(0.98);
+        }
+        .square-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            display: block;
+            background-color: transparent;
+            padding: 0;
+            box-shadow: none;
+        }
+        .square-text {
+            margin-top: 0;
+            line-height: 1.3;
+        }
+        .square.completed {
+            background-color: #a5d6a5;
+            border-color: #2e7d32;
+            position: relative;
+        }
+        .square.completed::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 40px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            background-color: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            padding: 3px;
+            display: flex;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            border: 1px solid #d0d0d0;
+        }
+        .lang-option {
+            padding: 6px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            color: #555;
+            user-select: none;
+            text-align: center;
+            min-width: 45px;
+        }
+        .lang-option.active {
+            background-color: #9e7e5e;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .lang-option:not(.active):hover {
+            background-color: #f0f0f0;
+        }
+        .btn-label {
+            position: absolute;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 4px 0;
+            border-radius: 20px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 10;
+            box-sizing: border-box;
+        }
+        /* ========== 修改：全屏框架（去掉顶部栏，按钮悬浮） ========== */
+        .frame-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+        }
+        /* 让 iframe 占满整个框架 */
+        .frame-content {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        /* 悬浮关闭按钮 —— 酷炫版 */
+        .frame-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    z-index: 20000;
+    display: none;
+    flex-direction: column;
+}
+.frame-content {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* 果冻 X 按钮 —— 替换原有关闭按钮 */
+.close-frame {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    box-shadow: 0 8px 20px rgba(221, 36, 118, 0.35);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    z-index: 99999;
+    transition: transform 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                background 0.4s ease,
+                box-shadow 0.4s ease;
+}
+
+.close-frame::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: inherit;
+    filter: blur(10px);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.close-frame .line {
+    position: absolute;
+    width: 26px;
+    height: 4px;
+    background-color: #ffffff;
+    border-radius: 4px;
+    transition: transform 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                width 0.3s ease;
+}
+
+.close-frame .line-1 { transform: rotate(45deg); }
+.close-frame .line-2 { transform: rotate(-45deg); }
+
+/* Hover 悬浮 */
+.close-frame:hover {
+    transform: scale(1.2) rotate(180deg);
+    background: linear-gradient(135deg, #8a2387, #e94057, #f27121);
+    box-shadow: 0 12px 28px rgba(233, 64, 87, 0.5);
+}
+
+.close-frame:hover::before {
+    opacity: 0.7;
+    transform: scale(1.3);
+}
+
+.close-frame:hover .line {
+    width: 30px;
+}
+
+/* Active 点击 */
+.close-frame:active {
+    transform: scale(0.9) rotate(180deg);
+    transition: transform 0.1s ease;
+}
+        /* ========== 以上为修改部分 ========== */
+
+        .map-btn.locked {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+        @keyframes unlockPulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
+            50% { box-shadow: 0 0 20px 10px rgba(46, 125, 50, 0.5); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.7); }
+        }
+        .map-btn.unlock-effect,
+        .square.unlock-effect {
+            animation: unlockPulse 1s ease-out;
+        }
+        .sejadin {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10001;
+            font-family: 'Poppins', 'Impact', 'Arial Black', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            color: #ffd966;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 0 #8b5a2b, 6px 6px 0 rgba(0,0,0,0.3), 0 0 20px rgba(255,215,0,0.8);
+            background: linear-gradient(135deg, #f5e7c8 0%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 4px 6px black);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 30000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .warning-text {
+            font-size: 80px;
+            font-weight: 900;
+            color: red;
+            text-shadow: 0 0 20px #ff0000, 0 0 40px #ff6666;
+            animation: warningPop 0.8s ease-in-out 3;
+            margin-bottom: 40px;
+        }
+        @keyframes warningPop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .warning-form-container {
+            background-color: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 80%;
+            max-width: 800px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        .warning-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 12px;
+        }
+        .submit-btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10002;
+            background-color: #9e7e5e;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 2px solid #ffffff;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .settings-btn:hover {
+            background-color: #7c5e42;
+            transform: scale(1.05);
+        }
+        .settings-btn:active {
+            transform: scale(0.95);
+        }
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 40000;
+        }
+        .settings-square {
+            width: 400px;
+            height: 400px;
+            background-color: #ffffff;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            box-sizing: border-box;
+            position: relative;
+        }
+        .settings-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 36px;
+            cursor: pointer;
+            color: #555;
+            line-height: 1;
+        }
+        .settings-close:hover {
+            color: #000;
+        }
+        .settings-item {
+            margin: 20px 0;
+            width: 100%;
+            text-align: center;
+        }
+        .fullscreen-btn {
+            background-color: #9e7e5e;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            width: 80%;
+            max-width: 250px;
+            margin: 0 auto;
+            transition: background-color 0.2s;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+            font-weight: bold;
+        }
+        .fullscreen-btn:hover {
+            background-color: #7c5e42;
+        }
+        .volume-control {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .volume-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a3729;
+            margin-bottom: 10px;
+        }
+        .volume-slider {
+            width: 80%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 25px;
+            height: 25px;
+            background: #9e7e5e;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .volume-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            background: #9e7e5e;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: #FDF6E3;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .bg-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .map-btn {
+            position: absolute;
+            display: block;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .map-btn img {
+            width: 100%;
+            display: block;
+        }
+        .map-btn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0px 0px 15px rgba(255, 255, 255, 1));
+        }
+        .map-btn:active {
+            transform: scale(0.95);
+        }
+        .item-zhiyi { width: 18%; top: 15%; left: 10%; }
+        .item-yinyue { width: 15%; top: 15%; left: 42%; }
+        .item-mengya { width: 22%; top: 15%; left: 67%; }
+        .item-fuhua { width: 18%; top: 54%; left: 18%; }
+        .item-nimi { width: 20%; top: 52%; left: 44%; }
+        .item-miaohui { width: 16%; top: 63%; left: 77%; }
+        
+        /* ========== 横屏强制遮罩 ========== */
+        .orientation-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="80px" height="80px"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center 35%;
+            background-size: 80px;
+            z-index: 50000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .orientation-message {
+            background: rgba(0,0,0,0.8);
+            padding: 20px 30px;
+            border-radius: 60px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin-bottom: 20%;
+        }
+        .orientation-overlay.hidden {
+            display: none;
+        }
+        
+        /* ========== 手机横屏优化 ========== */
+        @media (max-width: 1024px) and (orientation: landscape) {
+            .map-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .map-container .bg-image {
+                width: auto;
+                min-width: 100%;
+                height: auto;
+            }
+            .map-btn {
+                width: 22% !important;
+            }
+            .item-zhiyi { top: 12%; left: 8%; }
+            .item-yinyue { top: 12%; left: 40%; }
+            .item-mengya { top: 12%; left: 70%; }
+            .item-fuhua { top: 50%; left: 14%; }
+            .item-nimi { top: 48%; left: 44%; }
+            .item-miaohui { top: 60%; left: 76%; }
+            .btn-label {
+                font-size: 12px;
+                padding: 2px 0;
+                white-space: nowrap;
+            }
+            .sejadin {
+                font-size: 36px;
+                bottom: 10px;
+                left: 10px;
+            }
+            .lang-switcher {
+                top: 10px;
+                right: 10px;
+                transform: scale(0.8);
+            }
+            .settings-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+                top: 10px;
+                left: 10px;
+            }
+            .square {
+                width: 200px;
+                height: 240px;
+                font-size: 1.2rem;
+            }
+            .square-img {
+                width: 140px;
+                height: 140px;
+            }
+            .modal-rectangle {
+                padding: 20px;
+            }
+            .modal-squares {
+                gap: 20px;
+            }
+        }
+        
+        /* ========== 手机竖屏强制旋转提示（修正：仅当遮罩可见时才模糊）========== */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .orientation-overlay:not(.hidden) {
+                display: flex;
+            }
+            .orientation-overlay:not(.hidden) ~ * {
+                filter: blur(2px);
+                pointer-events: none;
+            }
+            .orientation-overlay:not(.hidden) {
+                filter: none;
+                pointer-events: auto;
+            }
+        }
+        .orientation-overlay.hidden ~ * {
+            filter: none !important;
+            pointer-events: auto !important;
+        }
+        
+        /* ========== 修复警告弹窗滚动 ========== */
+        @media (max-width: 768px) {
+            .warning-form-container {
+                max-height: 85vh;
+                overflow-y: auto;
+                padding: 15px;
+                width: 90%;
+            }
+            .warning-iframe {
+                height: 60vh;
+                min-height: 300px;
+            }
+            .submit-btn {
+                margin-top: 15px;
+                margin-bottom: 10px;
+                font-size: 20px;
+                padding: 12px 30px;
+            }
+        }
+        @media (max-width: 480px) {
+            .warning-form-container {
+                max-height: 80vh;
+                padding: 10px;
+            }
+            .warning-iframe {
+                height: 55vh;
+            }
+            .submit-btn {
+                font-size: 18px;
+                padding: 10px 20px;
+            }
+        }
+        @media (orientation: landscape) and (max-height: 500px) {
+            .warning-form-container {
+                max-height: 90vh;
+            }
+            .warning-iframe {
+                height: 65vh;
+            }
+        }
+
+        /* ========== 新增样式（独立，不触碰原有） ========== */
+        /* 封面层 */
+        .cover-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 15000; /* 高于地图，低于警告 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #0a0612;
+            pointer-events: auto;
+        }
+        .cover-layer .cover-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cover-layer .start-btn {
+            position: relative;
+            cursor: pointer;
+            width: 950px;
+            height: auto;
+            z-index: 1;
+            margin-top: 330px;
+            margin-left: 28px;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            user-select: none;
+        }
+        .cover-layer .start-btn:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+        }
+        .cover-layer .start-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 语言选择（原有） */
+        .lang-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 16000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .lang-selection .lang-options {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .lang-selection .lang-btn {
+            cursor: pointer;
+            width: 300px;
+            height: auto;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        .lang-selection .lang-btn:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+        }
+        .lang-selection .lang-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 视频播放层（intro） */
+        .video-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 17000;
+            display: none;
+            background: #000;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-layer video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            background: #000;
+        }
+
+        /* 迷雾 Canvas */
+        #fog-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 18000;
+            pointer-events: none;
+            display: none;
+        }
+
+        /* ========== 回放按钮样式 ========== */
+        .replay-btn {
+            position: fixed;
+            top: 20px;
+            right: 195px;
+            z-index: 10001;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #333;
+            transition: transform 0.3s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        background 0.3s ease,
+                        box-shadow 0.3s ease;
+            font-family: 'Arial', sans-serif;
+            user-select: none;
+            padding: 0;
+        }
+        .replay-btn:hover {
+            transform: scale(1.15) rotate(10deg);
+            background: #ffffff;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.35);
+        }
+        .replay-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.1s ease;
+        }
+        .replay-btn span {
+            line-height: 1;
+        }
+        @media (max-width: 1024px) and (orientation: landscape) {
+            .replay-btn {
+                top: 10px;
+                right: 40px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+        }
+        @media (max-width: 768px) and (orientation: portrait) {
+            .replay-btn {
+                top: 10px;
+                right: 80px;
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+        }
+
+        /* ========== 回放专用语言选择 ========== */
+        #replayLangSelection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 21000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        #replayLangSelection .lang-options {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        #replayLangSelection .lang-btn {
+            cursor: pointer;
+            width: 300px;
+            height: auto;
+            transition: transform 0.2s ease, filter 0.2s ease;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        #replayLangSelection .lang-btn:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.3));
+        }
+        #replayLangSelection .lang-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ========== 回放覆盖层（仅关闭按钮，无 Skip） ========== */
+        #replayFrameOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 22000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #replayFrameOverlay .replay-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* 回放关闭按钮（果冻风格） */
+        #replayCloseBtn {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff512f, #dd2476);
+            box-shadow: 0 8px 20px rgba(221, 36, 118, 0.35);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            z-index: 23000;
+            transition: transform 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        background 0.4s ease,
+                        box-shadow 0.4s ease;
+        }
+        #replayCloseBtn::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: inherit;
+            filter: blur(10px);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        #replayCloseBtn:hover {
+            transform: scale(1.2) rotate(180deg);
+            background: linear-gradient(135deg, #8a2387, #e94057, #f27121);
+            box-shadow: 0 12px 28px rgba(233, 64, 87, 0.5);
+        }
+        #replayCloseBtn:hover::before {
+            opacity: 0.7;
+            transform: scale(1.3);
+        }
+        #replayCloseBtn:active {
+            transform: scale(0.9) rotate(180deg);
+            transition: transform 0.1s ease;
+        }
+        #replayCloseBtn .line {
+            position: absolute;
+            width: 26px;
+            height: 4px;
+            background-color: #ffffff;
+            border-radius: 4px;
+            transition: transform 0.6s cubic-bezier(0.68, -0.6, 0.32, 1.6),
+                        width 0.3s ease;
+        }
+        #replayCloseBtn .line-1 { transform: rotate(45deg); }
+        #replayCloseBtn .line-2 { transform: rotate(-45deg); }
+
+        /* ========== Skip 链接（仅用于 intro 视频，在右下角） ========== */
+        #skipLink {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            z-index: 20;
+            font-family: 'Arial', sans-serif;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+        #skipLink:hover {
+            color: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+        #skipLink:active {
+            transform: scale(0.95);
+        }
+
+        /* ========== 手机竖屏适配 ========== */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .cover-layer .start-btn {
+                width: 150px !important;
+                margin-top: 35vh !important;
+                margin-left: 0 !important;
+            }
+            .lang-selection .lang-btn,
+            #replayLangSelection .lang-btn {
+                width: 120px !important;
+                height: auto !important;
+            }
+            .lang-selection .lang-options,
+            #replayLangSelection .lang-options {
+                gap: 20px !important;
+            }
+            #replayCloseBtn {
+                width: 40px;
+                height: 40px;
+                top: 15px;
+                right: 15px;
+            }
+            #replayCloseBtn .line {
+                width: 18px;
+                height: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 横屏强制遮罩 -->
+    <div id="orientationOverlay" class="orientation-overlay">
+        <div class="orientation-message">
+            🔄 請旋轉為橫向螢幕<br>
+            <small>Please rotate to landscape mode</small>
+        </div>
+    </div>
+
+    <!-- 设置按钮 -->
+    <div class="settings-btn" id="settingsBtn">⚙️</div>
+    <div id="settingsModal" class="settings-modal">
+        <div class="settings-square">
+            <div class="settings-close" id="settingsClose">&times;</div>
+            <div class="settings-item">
+                <button id="fullscreenToggle" class="fullscreen-btn" data-bm="Skrin Penuh" data-zh="全屏">Skrin Penuh</button>
+            </div>
+            <div class="settings-item volume-control">
+                <span id="volumeLabel" class="volume-label" data-bm="Kelantangan" data-zh="音量">Kelantangan</span>
+                <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="background.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="sejadin">SEJADIN</div>
+
+    <!-- 回放按钮 -->
+    <button class="replay-btn" id="replayBtn">
+        <span>▶</span>
+    </button>
+
+    <div class="lang-switcher" id="langSwitcher">
+        <div class="lang-option active" data-lang="bm">BM</div>
+        <div class="lang-option" data-lang="zh">中文</div>
+    </div>
+
+    <!-- 任务框架 -->
+    <div id="frameOverlay" class="frame-overlay">
+        <button class="close-frame" id="closeFrameBtn">
+            <span class="line line-1"></span>
+            <span class="line line-2"></span>
+        </button>
+        <iframe id="frameContent" class="frame-content" src="about:blank" allow="camera; microphone" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"></iframe>
+    </div>
+
+    <!-- 警告弹窗 -->
+    <div id="warningOverlay" class="warning-overlay">
+        <div id="warningText" class="warning-text">WARNING!!!</div>
+        <div id="warningFormContainer" class="warning-form-container">
+            <iframe id="warningIframe" class="warning-iframe" src="about:blank" allow="camera; microphone" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"></iframe>
+            <button id="warningSubmitBtn" class="submit-btn">SUBMIT</button>
+        </div>
+    </div>
+
+    <!-- 地图 -->
+    <div class="map-container" id="mapContainer">
+        <img src="bg-map.jpg" alt="地圖背景" class="bg-image">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSesLtaTpC9OHvnYH8IWr5bWGWmuhfPfqmfObEimjLQD89hpOw/viewform?usp=header" class="map-btn item-zhiyi" target="_blank" rel="noopener" data-task="zhiyi"><img src="btn-zhiyi.png" alt="制衣坊"></a>
+        <a href="#" class="map-btn item-yinyue"><img src="btn-yinyue.png" alt="音樂坊"></a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSeqr7Bye3gSpOgzPNHESr4oG6vWg2xw_sZB8m25vDHaelJ-ow/viewform?usp=header" class="map-btn item-mengya" target="_blank" rel="noopener" data-task="mengya"><img src="btn-mengya.png" alt="萌芽谷"></a>
+        <a href="#" class="map-btn item-fuhua"><img src="btn-fuhua.png" alt="孵化坊"></a>
+        <a href="#" class="map-btn item-nimi"><img src="btn-nimi.png" alt="泥密坊"></a>
+        <a href="https://hamster-one-eta.vercel.app/" class="map-btn item-miaohui" target="_blank" rel="noopener" data-task="miaohui" id="miaohuiBtn"><img src="btn-miaohui.png" alt="廟會"></a>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="yinyueModal" class="modal-overlay">
+        <div class="modal-rectangle"><div class="modal-squares">
+            <a href="https://jatanegaravb.vercel.app/" target="_blank" rel="noopener" class="square left" id="yinyue-left" data-task="yinyue" data-sub="left"><img class="square-img" src="jata-negara.png" alt="Jata Negara emblem"><span class="square-text">Jata Negara</span></a>
+            <a href="https://jalurgemilangvb.vercel.app/" target="_blank" rel="noopener" class="square right" id="yinyue-right" data-task="yinyue" data-sub="right"><img class="square-img" src="jalur-gemilang.png" alt="Jalur Gemilang flag"><span class="square-text">Jalur Gemilang</span></a>
+        </div></div>
+    </div>
+    <div id="fuhuaModal" class="modal-overlay">
+        <div class="modal-rectangle"><div class="modal-squares">
+            <a href="https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/0JK5xn-5RMKw6ns6jP2mUA" target="_blank" rel="noopener" class="square left" id="fuhua-left" data-task="fuhua" data-sub="left"><img class="square-img" src="jata-negara.png" alt="Jata Negara emblem"><span class="square-text">Jata Negara</span></a>
+            <a href="https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/dckzpqEvQCen76Hzq-BKhg" target="_blank" rel="noopener" class="square right" id="fuhua-right" data-task="fuhua" data-sub="right"><img class="square-img" src="jalur-gemilang.png" alt="Jalur Gemilang flag"><span class="square-text">Jalur Gemilang</span></a>
+        </div></div>
+    </div>
+    <div id="nimiModal" class="modal-overlay">
+        <div class="modal-rectangle"><div class="modal-squares">
+            <a href="https://jatanegara-vb.vercel.app/" target="_blank" rel="noopener" class="square left" id="nimi-left" data-task="nimi" data-sub="left"><img class="square-img" src="jata-negara.png" alt="Jata Negara emblem"><span class="square-text">Jata Negara</span></a>
+            <a href="https://jalurgemilang-vb.vercel.app/" target="_blank" rel="noopener" class="square right" id="nimi-right" data-task="nimi" data-sub="right"><img class="square-img" src="jalur-gemilang.png" alt="Jalur Gemilang flag"><span class="square-text">Jalur Gemilang</span></a>
+        </div></div>
+    </div>
+
+    <!-- 封面层 -->
+    <div id="coverLayer" class="cover-layer">
+        <img src="cover-bg.png" alt="Cover Background" class="cover-bg">
+        <img src="start-btn.png" alt="Start" class="start-btn" id="startBtn">
+    </div>
+
+    <!-- 首次启动语言选择 -->
+    <div id="langSelection" class="lang-selection">
+        <div class="lang-options">
+            <img src="lang-zh.png" alt="中文" class="lang-btn" data-lang="zh">
+            <img src="lang-bm.png" alt="Bahasa Melayu" class="lang-btn" data-lang="bm">
+        </div>
+    </div>
+
+    <!-- 回放专用语言选择 -->
+    <div id="replayLangSelection">
+        <div class="lang-options">
+            <img src="lang-zh.png" alt="中文" class="lang-btn" data-lang="zh">
+            <img src="lang-bm.png" alt="Bahasa Melayu" class="lang-btn" data-lang="bm">
+        </div>
+    </div>
+
+    <!-- 视频播放层（intro） -->
+    <div id="videoLayer" class="video-layer">
+        <video id="introVideo" preload="auto" playsinline></video>
+        <a id="skipLink">Skip ></a>
+    </div>
+
+    <!-- 迷雾 Canvas -->
+    <canvas id="fog-canvas"></canvas>
+
+    <!-- 回放覆盖层（只有关闭按钮，没有 Skip） -->
+    <div id="replayFrameOverlay">
+        <button id="replayCloseBtn">
+            <span class="line line-1"></span>
+            <span class="line line-2"></span>
+        </button>
+        <iframe id="replayIframe" class="replay-iframe" src="about:blank" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+
+    <!-- ========== 原有 JavaScript（100% 不变） ========== -->
+    <script>
+        (function() {
+            'use strict';
+            
+            let skipOrientationCheck = false;
+            let isMiaohuiActive = false;
+            
+            const orientationOverlay = document.getElementById('orientationOverlay');
+            function checkOrientation() {
+                if (skipOrientationCheck) {
+                    orientationOverlay.classList.add('hidden');
+                    return;
+                }
+                if (window.innerHeight > window.innerWidth) {
+                    orientationOverlay.classList.remove('hidden');
+                } else {
+                    orientationOverlay.classList.add('hidden');
+                }
+            }
+            checkOrientation();
+            window.addEventListener('resize', checkOrientation);
+            window.addEventListener('orientationchange', checkOrientation);
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                const frameOverlay = document.getElementById('frameOverlay');
+                const frameContent = document.getElementById('frameContent');
+                const closeFrameBtn = document.getElementById('closeFrameBtn');
+                const langSwitcher = document.getElementById('langSwitcher');
+                const langOptions = langSwitcher.querySelectorAll('.lang-option');
+                const mapContainer = document.getElementById('mapContainer');
+
+                const langData = {
+                    'yinyue-left': { bm: { href: 'https://jatanegaravb.vercel.app/', text: 'Jata Negara' }, zh: { href: 'https://jatanegaravc.vercel.app/', text: '国徽' } },
+                    'yinyue-right': { bm: { href: 'https://jalurgemilangvb.vercel.app/', text: 'Jalur Gemilang' }, zh: { href: 'https://jalurgemilangvc.vercel.app/', text: '辉煌条纹' } },
+                    'fuhua-left': { bm: { href: 'https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/0JK5xn-5RMKw6ns6jP2mUA', text: 'Jata Negara' }, zh: { href: 'https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/-Nd6TlJvR-Kx6RowvY9E-Q', text: '国徽' } },
+                    'fuhua-right': { bm: { href: 'https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/dckzpqEvQCen76Hzq-BKhg', text: 'Jalur Gemilang' }, zh: { href: 'https://read.bookcreator.com/bWyhwslXjFdj06yZsJdAdlqAlyt1/KP6FKS5aT-2FrQQ5E8f6NA', text: '辉煌条纹' } },
+                    'nimi-left': { bm: { href: 'https://jatanegara-vb.vercel.app/', text: 'Jata Negara' }, zh: { href: 'https://jatanegara-vc.vercel.app/', text: '国徽' } },
+                    'nimi-right': { bm: { href: 'https://jalurgemilang-vb.vercel.app/', text: 'Jalur Gemilang' }, zh: { href: 'https://jalurgemilang-vc.vercel.app/', text: '辉煌条纹' } }
+                };
+                const leftRightIds = Object.keys(langData);
+                let currentLang = 'bm';
+                const order = ['zhiyi', 'fuhua', 'yinyue', 'nimi', 'mengya', 'miaohui'];
+                let tasks = {
+                    zhiyi: { completed: false, unlocked: true },
+                    fuhua: { completed: false, unlocked: false, subtasks: { left: false, right: false } },
+                    yinyue: { completed: false, unlocked: false, subtasks: { left: false, right: false } },
+                    nimi: { completed: false, unlocked: false, subtasks: { left: false, right: false } },
+                    mengya: { completed: false, unlocked: false },
+                    miaohui: { completed: false, unlocked: false }
+                };
+                let currentTask = null;
+                let currentSub = null;
+
+                function setLanguage(lang) {
+                    if (lang === currentLang) return;
+                    leftRightIds.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            const data = langData[id][lang];
+                            if (data) {
+                                el.href = data.href;
+                                const textSpan = el.querySelector('.square-text');
+                                if (textSpan) textSpan.textContent = data.text;
+                            }
+                        }
+                    });
+                    updateSettingsLanguage(lang);
+                    currentLang = lang;
+                }
+
+                langOptions.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const lang = this.dataset.lang;
+                        if (lang === currentLang) return;
+                        langOptions.forEach(opt => opt.classList.remove('active'));
+                        this.classList.add('active');
+                        setLanguage(lang);
+                    });
+                });
+
+                const modalConfigs = [
+                    { btn: '.item-yinyue', modal: 'yinyueModal' },
+                    { btn: '.item-fuhua', modal: 'fuhuaModal' },
+                    { btn: '.item-nimi', modal: 'nimiModal' }
+                ];
+                modalConfigs.forEach(config => {
+                    const btn = document.querySelector(config.btn);
+                    const modal = document.getElementById(config.modal);
+                    if (btn && modal) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            if (btn.classList.contains('locked')) return;
+                            modal.style.display = 'flex';
+                        });
+                        modal.addEventListener('click', function(e) {
+                            if (e.target === modal) modal.style.display = 'none';
+                        });
+                        const rect = modal.querySelector('.modal-rectangle');
+                        if (rect) rect.addEventListener('click', e => e.stopPropagation());
+                    }
+                });
+
+                const buttonLabels = [
+                    { selector: '.item-zhiyi', text: 'Ujian Pra' },
+                    { selector: '.item-yinyue', text: 'CITRA' },
+                    { selector: '.item-mengya', text: 'Ujian Pos' },
+                    { selector: '.item-fuhua', text: 'HistoriVerse' },
+                    { selector: '.item-nimi', text: 'SUAR' },
+                    { selector: '.item-miaohui', text: 'Edu-HamQuest' }
+                ];
+                const labelElements = [];
+                function createLabels() {
+                    buttonLabels.forEach(item => {
+                        const btn = document.querySelector(item.selector);
+                        if (!btn) return;
+                        let existing = labelElements.find(lbl => lbl.btn === btn);
+                        if (existing) return;
+                        const label = document.createElement('div');
+                        label.className = 'btn-label';
+                        label.textContent = item.text;
+                        mapContainer.appendChild(label);
+                        labelElements.push({ btn, label, offsetY: (item.selector === '.item-mengya') ? -4 : -2 });
+                    });
+                }
+                function updateLabelPositions() {
+                    labelElements.forEach(({ btn, label, offsetY }) => {
+                        const btnRect = btn.getBoundingClientRect();
+                        const containerRect = mapContainer.getBoundingClientRect();
+                        const left = btnRect.left - containerRect.left;
+                        const top = btnRect.top - containerRect.top + btn.offsetHeight + offsetY;
+                        label.style.left = left + 'px';
+                        label.style.top = top + 'px';
+                        label.style.width = btn.offsetWidth + 'px';
+                    });
+                }
+                createLabels();
+                updateLabelPositions();
+                window.addEventListener('load', function() { updateLabelPositions(); });
+                window.addEventListener('resize', function() { updateLabelPositions(); });
+                const bgImage = document.querySelector('.bg-image');
+                if (bgImage && !bgImage.complete) bgImage.addEventListener('load', () => updateLabelPositions());
+                const allBtnImages = document.querySelectorAll('.map-btn img');
+                let pendingImages = 0;
+                allBtnImages.forEach(img => { if (!img.complete) { pendingImages++; img.addEventListener('load', () => { pendingImages--; if (pendingImages === 0) updateLabelPositions(); }); } });
+                if (pendingImages === 0) updateLabelPositions();
+
+                function updateUI() {
+                    document.querySelectorAll('.map-btn').forEach(btn => {
+                        let taskId = null;
+                        if (btn.classList.contains('item-zhiyi')) taskId = 'zhiyi';
+                        else if (btn.classList.contains('item-yinyue')) taskId = 'yinyue';
+                        else if (btn.classList.contains('item-mengya')) taskId = 'mengya';
+                        else if (btn.classList.contains('item-fuhua')) taskId = 'fuhua';
+                        else if (btn.classList.contains('item-nimi')) taskId = 'nimi';
+                        else if (btn.classList.contains('item-miaohui')) taskId = 'miaohui';
+                        if (taskId && tasks[taskId]) btn.classList.toggle('locked', !tasks[taskId].unlocked);
+                    });
+                    const squareMap = { 'yinyue-left':'yinyue', 'yinyue-right':'yinyue', 'fuhua-left':'fuhua', 'fuhua-right':'fuhua', 'nimi-left':'nimi', 'nimi-right':'nimi' };
+                    for (let id in squareMap) {
+                        const el = document.getElementById(id);
+                        if (!el) continue;
+                        const task = squareMap[id];
+                        const sub = id.includes('left') ? 'left' : 'right';
+                        if (tasks[task]?.subtasks?.[sub]) el.classList.add('completed');
+                        else el.classList.remove('completed');
+                    }
+                }
+                function addUnlockEffect(taskId) {
+                    const selectorMap = { 'zhiyi':'.item-zhiyi', 'yinyue':'.item-yinyue', 'mengya':'.item-mengya', 'fuhua':'.item-fuhua', 'nimi':'.item-nimi', 'miaohui':'.item-miaohui' };
+                    const el = document.querySelector(selectorMap[taskId]);
+                    if (el) { el.classList.add('unlock-effect'); setTimeout(() => el.classList.remove('unlock-effect'), 1000); }
+                }
+                function unlockNext(completedTaskId) {
+                    const idx = order.indexOf(completedTaskId);
+                    if (idx === -1 || idx === order.length - 1) return;
+                    const next = order[idx + 1];
+                    if (tasks[next]) { tasks[next].unlocked = true; addUnlockEffect(next); }
+                    updateUI();
+                }
+                function checkFangCompletion(fangId) {
+                    if (!tasks[fangId]?.subtasks) return false;
+                    if (tasks[fangId].subtasks.left && tasks[fangId].subtasks.right && !tasks[fangId].completed) {
+                        tasks[fangId].completed = true;
+                        unlockNext(fangId);
+                        return true;
+                    }
+                    return false;
+                }
+                function completeTask(taskId, sub) {
+                    if (!tasks[taskId]) return;
+                    if (sub) {
+                        if (tasks[taskId].subtasks && !tasks[taskId].subtasks[sub]) {
+                            tasks[taskId].subtasks[sub] = true;
+                            updateUI();
+                            checkFangCompletion(taskId);
+                        }
+                    } else {
+                        if (!tasks[taskId].completed) {
+                            tasks[taskId].completed = true;
+                            if (taskId === 'mengya') showWarningAndForm();
+                            else unlockNext(taskId);
+                            updateUI();
+                        }
+                    }
+                }
+
+                const warningOverlay = document.getElementById('warningOverlay');
+                const warningText = document.getElementById('warningText');
+                const warningFormContainer = document.getElementById('warningFormContainer');
+                const warningIframe = document.getElementById('warningIframe');
+                const warningSubmitBtn = document.getElementById('warningSubmitBtn');
+                function showWarningAndForm() {
+                    fadeOutMusic();
+                    warningOverlay.style.display = 'flex';
+                    warningText.style.display = 'block';
+                    warningFormContainer.style.display = 'none';
+                    warningIframe.src = 'https://docs.google.com/forms/d/e/1FAIpQLSd-UvZD_LZ-n5bEvucCycaI85K5jJTHc8_IAz8yvIryIFkD2w/viewform?usp=header';
+                    setTimeout(() => { warningText.style.display = 'none'; warningFormContainer.style.display = 'flex'; }, 2400);
+                }
+                warningSubmitBtn.addEventListener('click', function() {
+                    warningOverlay.style.display = 'none';
+                    warningIframe.src = 'about:blank';
+                    fadeInMusic();
+                    unlockNext('mengya');
+                });
+
+                const externalLinks = document.querySelectorAll('a[target="_blank"]');
+                externalLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const taskId = this.dataset.task;
+                        const sub = this.dataset.sub;
+                        
+                        if (taskId === 'miaohui') {
+                            skipOrientationCheck = true;
+                            isMiaohuiActive = true;
+                            checkOrientation();
+                        } else {
+                            skipOrientationCheck = false;
+                            isMiaohuiActive = false;
+                            checkOrientation();
+                        }
+                        
+                        if (taskId) {
+                            if (!tasks[taskId]?.unlocked) {
+                                alert('此關卡尚未解鎖，請先完成上一個任務。');
+                                if (taskId === 'miaohui') {
+                                    skipOrientationCheck = false;
+                                    isMiaohuiActive = false;
+                                    checkOrientation();
+                                }
+                                return;
+                            }
+                            currentTask = taskId;
+                            currentSub = sub;
+                        } else {
+                            currentTask = null;
+                            currentSub = null;
+                        }
+                        const url = this.href;
+                        if (url) {
+                            frameContent.src = url;
+                            frameOverlay.style.display = 'flex';
+                            fadeOutMusic();
+                        }
+                    });
+                });
+                
+                closeFrameBtn.addEventListener('click', function() {
+                    if (currentTask) {
+                        completeTask(currentTask, currentSub);
+                        currentTask = null;
+                        currentSub = null;
+                    }
+                    frameOverlay.style.display = 'none';
+                    frameContent.src = 'about:blank';
+                    fadeInMusic();
+                    
+                    if (isMiaohuiActive) {
+                        skipOrientationCheck = false;
+                        isMiaohuiActive = false;
+                        checkOrientation();
+                    }
+                });
+                
+                updateUI();
+
+                const bgMusic = document.getElementById('bgMusic');
+                const settingsBtn = document.getElementById('settingsBtn');
+                const settingsModal = document.getElementById('settingsModal');
+                const settingsClose = document.getElementById('settingsClose');
+                const fullscreenToggle = document.getElementById('fullscreenToggle');
+                const volumeSlider = document.getElementById('volumeSlider');
+                const volumeLabelElem = document.getElementById('volumeLabel');
+                bgMusic.volume = 0.5;
+                let musicStarted = false;
+                function tryPlayMusic() { if (!musicStarted) { bgMusic.play().then(() => { musicStarted = true; }).catch(e => console.log('自动播放受阻')); } }
+                document.addEventListener('click', function once() { tryPlayMusic(); document.removeEventListener('click', once); }, { once: true });
+                settingsBtn.addEventListener('click', () => { settingsModal.style.display = 'flex'; });
+                settingsClose.addEventListener('click', () => { settingsModal.style.display = 'none'; });
+                settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.style.display = 'none'; });
+                fullscreenToggle.addEventListener('click', () => { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else if (document.exitFullscreen) document.exitFullscreen(); });
+                volumeSlider.addEventListener('input', function() { bgMusic.volume = this.value; });
+                function updateSettingsLanguage(lang) {
+                    const fullBtn = document.getElementById('fullscreenToggle');
+                    const volLab = document.getElementById('volumeLabel');
+                    if (lang === 'bm') { fullBtn.textContent = fullBtn.dataset.bm; volLab.textContent = volLab.dataset.bm; }
+                    else { fullBtn.textContent = fullBtn.dataset.zh; volLab.textContent = volLab.dataset.zh; }
+                }
+                updateSettingsLanguage(currentLang);
+                let fadeInterval = null;
+                function fadeOutMusic() { if (fadeInterval) clearInterval(fadeInterval); const step = 0.05; fadeInterval = setInterval(() => { let cur = bgMusic.volume; if (cur <= step) { bgMusic.volume = 0; clearInterval(fadeInterval); fadeInterval = null; } else { bgMusic.volume = Math.max(0, cur - step); } }, 50); }
+                function fadeInMusic() { if (fadeInterval) clearInterval(fadeInterval); const target = parseFloat(volumeSlider.value); const step = 0.05; fadeInterval = setInterval(() => { let cur = bgMusic.volume; if (cur >= target - step) { bgMusic.volume = target; clearInterval(fadeInterval); fadeInterval = null; } else { bgMusic.volume = Math.min(target, cur + step); } }, 50); }
+                
+                if (warningFormContainer) {
+                    const applyScrollFix = () => {
+                        if (window.innerWidth <= 768) {
+                            warningFormContainer.style.maxHeight = '85vh';
+                            warningFormContainer.style.overflowY = 'auto';
+                            const iframe = warningFormContainer.querySelector('.warning-iframe');
+                            if (iframe) iframe.style.height = '60vh';
+                        }
+                    };
+                    applyScrollFix();
+                    window.addEventListener('resize', applyScrollFix);
+                }
+            });
+        })();
+    </script>
+
+    <!-- ========== 新增 JavaScript（仅负责回放，不触碰原有逻辑） ========== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- 获取元素 ----------
+            const coverLayer = document.getElementById('coverLayer');
+            const startBtn = document.getElementById('startBtn');
+            const langSelection = document.getElementById('langSelection');
+            const langBtns = langSelection.querySelectorAll('.lang-btn');
+            const videoLayer = document.getElementById('videoLayer');
+            const introVideo = document.getElementById('introVideo');
+            const fogCanvas = document.getElementById('fog-canvas');
+            const bgMusic = document.getElementById('bgMusic');
+            const volumeSlider = document.getElementById('volumeSlider');
+
+            // 回放相关
+            const replayBtn = document.getElementById('replayBtn');
+            const replayLangSelection = document.getElementById('replayLangSelection');
+            const replayLangBtns = replayLangSelection.querySelectorAll('.lang-btn');
+            const replayFrameOverlay = document.getElementById('replayFrameOverlay');
+            const replayIframe = document.getElementById('replayIframe');
+            const replayCloseBtn = document.getElementById('replayCloseBtn');
+
+            // ---------- 状态 ----------
+            let isFirstTime = true;
+            let isVideoPlaying = false;
+
+            // ---------- 迷雾系统（与原有完全一致） ----------
+            const ctx = fogCanvas.getContext('2d');
+            let width, height;
+            let particles = [];
+            let isDispersing = false;
+            let disperseOrigin = { x: 0, y: 0 };
+            let disperseRadius = 0;
+            let fogActive = false;
+            let fogCallback = null;
+
+            function resizeCanvas() {
+                width = fogCanvas.width = window.innerWidth;
+                height = fogCanvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            class FogParticle {
+                constructor() {
+                    this.init();
+                }
+                init() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 220 + 180;
+                    this.baseAlpha = Math.random() * 0.35 + 0.15;
+                    this.alpha = this.baseAlpha;
+                    this.vx = (Math.random() - 0.5) * 0.5;
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                }
+                update() {
+                    if (!isDispersing) {
+                        this.x += this.vx;
+                        this.y += this.vy;
+                        if (this.x < -this.size) this.x = width + this.size;
+                        if (this.x > width + this.size) this.x = -this.size;
+                        if (this.y < -this.size) this.y = height + this.size;
+                        if (this.y > height + this.size) this.y = -this.size;
+                    } else {
+                        const dx = this.x - disperseOrigin.x;
+                        const dy = this.y - disperseOrigin.y;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist < disperseRadius + 200) {
+                            const angle = Math.atan2(dy, dx);
+                            const force = (1 - dist / (disperseRadius + 250)) * 10;
+                            this.x += Math.cos(angle) * force;
+                            this.y += Math.sin(angle) * force;
+                            this.alpha *= 0.98;
+                        }
+                    }
+                }
+                draw() {
+                    if (this.alpha <= 0.001) return;
+                    ctx.save();
+                    ctx.beginPath();
+                    const grad = ctx.createRadialGradient(
+                        this.x, this.y, 0,
+                        this.x, this.y, this.size
+                    );
+                    grad.addColorStop(0, `rgba(220, 225, 240, ${this.alpha})`);
+                    grad.addColorStop(0.7, `rgba(180, 190, 220, ${this.alpha * 0.6})`);
+                    grad.addColorStop(1, `rgba(180, 190, 220, 0)`);
+                    ctx.fillStyle = grad;
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+
+            function createFog() {
+                particles = [];
+                for (let i = 0; i < 200; i++) {
+                    particles.push(new FogParticle());
+                }
+            }
+            createFog();
+
+            function renderFog() {
+                if (!fogActive) return;
+                ctx.clearRect(0, 0, width, height);
+                if (isDispersing) {
+                    disperseRadius += 8;
+                }
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(renderFog);
+            }
+
+            function triggerFogDissolve(originX, originY, callback) {
+                fogActive = true;
+                fogCanvas.style.display = 'block';
+                disperseOrigin.x = originX;
+                disperseOrigin.y = originY;
+                disperseRadius = 0;
+                isDispersing = true;
+                fogCallback = callback || null;
+                renderFog();
+                setTimeout(() => {
+                    isDispersing = false;
+                    fogActive = false;
+                    fogCanvas.style.display = 'none';
+                    if (fogCallback) {
+                        fogCallback();
+                        fogCallback = null;
+                    }
+                }, 6000);
+            }
+
+            // ---------- 首次启动视频 ----------
+            function playVideo(lang, isIntro) {
+                if (isVideoPlaying) return;
+                const videoSrc = lang === 'zh' ? 'intro-zh.mp4' : 'intro-bm.mp4';
+                introVideo.src = videoSrc;
+                videoLayer.style.display = 'flex';
+                isVideoPlaying = true;
+                if (!bgMusic.paused) bgMusic.pause();
+                introVideo.play().catch(e => console.warn('Video play error:', e));
+            }
+
+            function handleVideoEnd() {
+                isVideoPlaying = false;
+                videoLayer.style.display = 'none';
+                coverLayer.style.display = 'none';
+                langSelection.style.display = 'none';
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                triggerFogDissolve(cx, cy, function() {
+                    const vol = parseFloat(volumeSlider.value);
+                    bgMusic.volume = vol;
+                    bgMusic.play().catch(e => console.warn('BGM play error:', e));
+                    isFirstTime = false;
+                });
+            }
+
+            introVideo.addEventListener('ended', handleVideoEnd);
+            const skipLink = document.getElementById('skipLink');
+            skipLink.addEventListener('click', function() {
+                if (isVideoPlaying) {
+                    introVideo.pause();
+                    handleVideoEnd();
+                }
+            });
+
+            function showLanguageSelection(isIntro) {
+                if (isIntro) startBtn.style.display = 'none';
+                langSelection.style.display = 'flex';
+                langSelection.dataset.isIntro = isIntro ? 'true' : 'false';
+            }
+
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.dataset.lang;
+                    const isIntro = langSelection.dataset.isIntro === 'true';
+                    langSelection.style.display = 'none';
+                    isFirstTime = isIntro;
+                    playVideo(lang, isIntro);
+                });
+            });
+
+            startBtn.addEventListener('click', function() {
+                showLanguageSelection(true);
+            });
+
+            // ---------- 回放按钮 ----------
+            replayBtn.addEventListener('click', function() {
+                if (isVideoPlaying) return;
+                replayLangSelection.style.display = 'flex';
+            });
+
+            replayLangBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const lang = this.dataset.lang;
+                    replayLangSelection.style.display = 'none';
+                    const videoId = lang === 'zh' ? 'voNw6w2MoF4' : 'YpvqmzYvw5Q';
+                    const embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+                    replayIframe.src = embedUrl;
+                    replayFrameOverlay.style.display = 'flex';
+                    if (!bgMusic.paused) bgMusic.pause();
+                });
+            });
+
+            // 关闭回放（仅关闭按钮，无 Skip）
+            function closeReplay() {
+                if (replayFrameOverlay.style.display === 'none') return;
+                replayFrameOverlay.style.display = 'none';
+                replayIframe.src = 'about:blank';
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                triggerFogDissolve(cx, cy, function() {
+                    const vol = parseFloat(volumeSlider.value);
+                    bgMusic.volume = vol;
+                    bgMusic.play().catch(e => console.warn('BGM play error:', e));
+                });
+            }
+
+            replayCloseBtn.addEventListener('click', closeReplay);
+
+            // 点击背景也可关闭
+            replayFrameOverlay.addEventListener('click', function(e) {
+                if (e.target === replayFrameOverlay) closeReplay();
+            });
+
+            console.log('回放功能已加载（仅关闭按钮，Skip 保留给 intro 视频）');
+        })();
+    </script>
+
+</body>
+</html>
